@@ -1,0 +1,14 @@
+{
+    "python.testing.pytestArgs": [
+        "BACKEND"
+    ],
+    "python.testing.unittestEnabled": true,
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./BACKEND",
+        "-p",
+        "*_test.py"
+    ]
+}

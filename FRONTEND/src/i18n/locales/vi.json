@@ -1,0 +1,12 @@
+{
+	"welcome": "Khúc Thiên ca",
+	"home": "Trang chủ",
+	"about": "Giới thiệu",
+	"language": "Ngôn ngữ",
+	"selectLanguage": "Chọn ngôn ngữ",
+	"currentLocation": "Vị trí hiện tại",
+	"fetchingLocation": "Đang lấy vị trí của bạn...",
+	"locationError": "Không thể lấy vị trí",
+	"darkMode": "Chế độ tối",
+	"lightMode": "Chế độ sáng"
+}

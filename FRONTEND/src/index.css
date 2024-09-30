@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply m-0 p-0 box-border;
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply font-sans antialiased;
+}
+
+#root {
+  @apply min-h-screen;
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300;
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-white;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6;
+  }
+}
