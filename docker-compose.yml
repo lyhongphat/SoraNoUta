@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  sora-no-uta:
+    image: sora-no-uta
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:8000

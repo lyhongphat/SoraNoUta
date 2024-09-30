@@ -1,0 +1,201 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "C (gcc)",
+			"type": "shell",
+			"command": "cd ${fileDirname} && gcc \"${fileBasenameNoExtension}.c\" -o \"${fileBasenameNoExtension}.exe\" && \"${fileBasenameNoExtension}.exe\"",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": {
+				"owner": "c",
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}"
+				],
+				"pattern": {
+					"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				}
+			}
+		},
+		{
+			"label": "Pascal (FPC)",
+			"type": "shell",
+			"command": "cd ${fileDirname} && fpc \"${fileBasenameNoExtension}.pas\" && \"${fileBasenameNoExtension}.exe\"",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"args": [
+				{
+					"quoting": "escape"
+				}
+			],
+			"problemMatcher": {
+				"owner": "external",
+				"pattern": {
+					"regexp": "^([\\w]+\\.(p|pp|pas))\\((\\d+)\\,(\\d+)\\)\\s(Fatal|Error|Warning|Note):(.*)",
+					"file": 1,
+					"line": 3,
+					"column": 4,
+					"message": 6
+				}
+			}
+		},
+		{
+			"label": "C++ (g++)",
+			"type": "shell",
+			"command": "cd ${fileDirname} && g++ \"${fileBasenameNoExtension}.cpp\" -o \"${fileBasenameNoExtension}.exe\"  && \"${fileBasenameNoExtension}.exe\"",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": {
+				"owner": "cpp",
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}"
+				],
+				"pattern": {
+					"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				}
+			}
+		},
+		{
+			"label": "Python",
+			"type": "shell",
+			"command": "python \"${file}\"",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": {
+				"owner": "py",
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}"
+				],
+				"pattern": {
+					"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				}
+			}
+		},
+		{
+			"label": "Java",
+			"type": "shell",
+			"command": "cd ${fileDirname} && javac \"${file}\" && java ${fileBasenameNoExtension}",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": {
+				"owner": "java",
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}"
+				],
+				"pattern": {
+					"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				}
+			}
+		},
+		{
+			"label": "C# (csc)",
+			"type": "shell",
+			"command": "csc \"${file}\" && ${fileBasenameNoExtension}.exe",
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": {
+				"owner": "cs",
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}"
+				],
+				"pattern": {
+					"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				}
+			}
+		},
+		{
+			"type": "docker-build",
+			"label": "docker-build",
+			"platform": "python",
+			"dockerBuild": {
+				"tag": "soranouta:latest",
+				"dockerfile": "${workspaceFolder}/Dockerfile",
+				"context": "${workspaceFolder}",
+				"pull": true
+			}
+		},
+		{
+			"type": "docker-run",
+			"label": "docker-run: debug",
+			"dependsOn": [
+				"docker-build"
+			],
+			"python": {
+				"args": [
+					"BACKEND.main:app",
+					"--host",
+					"0.0.0.0",
+					"--port",
+					"8000"
+				],
+				"module": "uvicorn"
+			}
+		}
+	]
+}
