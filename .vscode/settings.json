@@ -9,6 +9,6 @@
         "-s",
         "./BACKEND",
         "-p",
-        "*test.py"
+        "*_test.py"
     ]
 }

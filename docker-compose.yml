@@ -1,10 +1,60 @@
-version: '3.4'
+# version: '3.4'
 
 services:
-  sora-no-uta:
+  sora-no-uta-app:
     image: sora-no-uta
+    container_name: sora-no-uta-webapp
     build:
       context: .
       dockerfile: ./Dockerfile
+    restart: on-failure
+    command: uvicorn BACKEND.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - 8000:8000
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    networks:
+      - sora-no-uta-network
+    volumes:
+      - sora-no-uta-volume:/app
+
+  postgres:
+    image: postgres:17.0
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    networks:
+      - sora-no-uta-network
+    volumes:
+      - sora-no-uta-volume:/data
+
+  rabbitmq:
+    image: rabbitmq:4.0.2
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - sora-no-uta-network
+
+  redis:
+    image: redis:8.0-M01
+    ports:
+      - "6379:6379"
+    networks:
+      - sora-no-uta-network
+
+networks:
+  sora-no-uta-network:
+    driver: bridge
+
+volumes:
+  sora-no-uta-volume:
