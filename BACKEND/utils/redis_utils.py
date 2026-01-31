@@ -1,13 +1,18 @@
 from typing import Type, TypeVar, Optional
 from pydantic import BaseModel
 import redis.asyncio as aioredis
+from BACKEND.config import REDIS_URL
 
 T = TypeVar("T", bound=BaseModel)
+
+# Singleton instance
+_redis_cache: Optional['Redis_Caching'] = None
 
 
 class Redis_Caching:
     def __init__(self, redis_url: str):
         self.redis = aioredis.from_url(redis_url, decode_responses=True)
+        self.redis_url = redis_url
 
     async def get_object(self, object_id: int, model: Type[T]) -> Optional[T]:
         """
@@ -31,3 +36,15 @@ class Redis_Caching:
         Xóa object khỏi cache với object_id và model chỉ định.
         """
         await self.redis.delete(f"{model.__name__.lower()}:{object_id}")
+
+    async def close(self):
+        """Close Redis connection."""
+        await self.redis.close()
+
+
+def get_redis_cache() -> Redis_Caching:
+    """Get or create singleton Redis cache instance."""
+    global _redis_cache
+    if _redis_cache is None:
+        _redis_cache = Redis_Caching(REDIS_URL)
+    return _redis_cache

@@ -1,21 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from typing import List
 
 from BACKEND.data.db import get_db
 from BACKEND.data.schemas.song_schema import Song, SongCreate, SongUpdate
 from BACKEND.service.song_service import SongService
-from BACKEND.utils.redis_utils import Redis_Caching
-from BACKEND.config import REDIS_URL
+from BACKEND.utils.redis_utils import get_redis_cache
+from BACKEND.utils.exceptions import NotFoundException
+from BACKEND.utils.pagination import get_pagination_params
 
 router = APIRouter(prefix="/songs", tags=["Songs"])
 
-# Initialize Redis cache
-redis_cache = Redis_Caching(REDIS_URL)
-
 
 def get_song_service(db: Session = Depends(get_db)) -> SongService:
-    return SongService(db, redis_cache)
+    return SongService(db, get_redis_cache())
 
 
 @router.post(
@@ -39,12 +37,10 @@ async def create_song(
     description="Retrieve a paginated list of songs from the database.",
 )
 async def get_songs(
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(
-        10, ge=1, le=100, description="Maximum number of records to return"),
+    pagination: dict = Depends(get_pagination_params),
     service: SongService = Depends(get_song_service),
 ):
-    return await service.get_songs(skip=skip, limit=limit)
+    return await service.get_songs(**pagination)
 
 
 @router.get(
@@ -59,10 +55,7 @@ async def get_song(
 ):
     song = await service.get_song(song_id)
     if not song:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Song with id {song_id} not found"
-        )
+        raise NotFoundException("Song", song_id)
     return song
 
 
@@ -79,10 +72,7 @@ async def update_song(
 ):
     updated_song = await service.update_song(song_id, song)
     if not updated_song:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Song with id {song_id} not found"
-        )
+        raise NotFoundException("Song", song_id)
     return updated_song
 
 
@@ -98,7 +88,4 @@ async def delete_song(
 ):
     success = await service.delete_song(song_id)
     if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Song with id {song_id} not found"
-        )
+        raise NotFoundException("Song", song_id)
