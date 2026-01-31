@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from models.song_model import Song
-from schemas.song_schema import SongCreate, SongUpdate
+from BACKEND.data.models.song_model import Song
+from BACKEND.data.schemas.song_schema import SongCreate, SongUpdate
 
 
 class SongRepository:

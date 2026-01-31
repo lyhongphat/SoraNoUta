@@ -1,6 +1,6 @@
 from typing import Type, TypeVar, Optional
 from pydantic import BaseModel
-import aioredis
+import redis.asyncio as aioredis
 
 T = TypeVar("T", bound=BaseModel)
 

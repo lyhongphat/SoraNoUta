@@ -1,18 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from typing import Generator
+from BACKEND.config import DATABASE_URL
 
-from dotenv import load_dotenv
-import os
-load_dotenv()
-
-# SQLALCHEMY_DATABASE_URL = f"postgresql://username:password@localhost/dbname"
-SQLALCHEMY_DATABASE_URL = f"postgresql://{
-    os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost/{os.getenv('POSTGRES_DB')}"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# khi crud phải thêm 2 câu
-# session.commit()
-# session.flush()
 Base = declarative_base()
+
+
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
