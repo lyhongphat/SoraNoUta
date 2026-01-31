@@ -22,7 +22,7 @@ services:
     networks:
       - sora-no-uta-network
     volumes:
-      - sora-no-uta-volume:/app
+      - .:/app  # Bind mount for live code reload
 
   postgres:
     image: postgres:17.0
