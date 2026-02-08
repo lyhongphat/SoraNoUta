@@ -1,7 +1,10 @@
 {
-	"welcome": "ようこそ",
+	"welcome": "ソラノウタ",
 	"home": "ホーム",
 	"about": "について",
 	"language": "言語",
-	"selectLanguage": "言語を選択"
+	"selectLanguage": "言語を選択",
+	"currentLocation": "現在地",
+	"fetchingLocation": "現在地を取得中...",
+	"locationError": "現在地の取得に失敗しました"
 }

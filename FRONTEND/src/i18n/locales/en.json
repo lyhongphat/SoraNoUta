@@ -1,7 +1,10 @@
 {
-  "welcome": "Welcome",
-  "home": "Home",
-  "about": "About",
-  "language": "Language",
-  "selectLanguage": "Select Language"
+	"welcome": "Sora no Uta",
+	"home": "Home",
+	"about": "About",
+	"language": "Language",
+	"selectLanguage": "Select Language",
+	"currentLocation": "Current Location",
+	"fetchingLocation": "Fetching your location...",
+	"locationError": "Unable to fetch location"
 }
