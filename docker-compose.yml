@@ -24,6 +24,20 @@ services:
     volumes:
       - .:/app
 
+  sora-no-uta-frontend:
+    image: sora-no-uta-frontend
+    container_name: sora-no-uta-frontend
+    build:
+      context: .
+      dockerfile: ./Dockerfile.frontend
+    restart: on-failure
+    ports:
+      - 3000:3000
+    depends_on:
+      - sora-no-uta-app
+    networks:
+      - sora-no-uta-network
+
   postgres:
     image: postgres:17.0
     environment:
