@@ -6,5 +6,7 @@
 	"selectLanguage": "Select Language",
 	"currentLocation": "Current Location",
 	"fetchingLocation": "Fetching your location...",
-	"locationError": "Unable to fetch location"
+	"locationError": "Unable to fetch location",
+	"darkMode": "Dark Mode",
+	"lightMode": "Light Mode"
 }

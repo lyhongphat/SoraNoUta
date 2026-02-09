@@ -6,5 +6,7 @@
 	"selectLanguage": "Chọn ngôn ngữ",
 	"currentLocation": "Vị trí hiện tại",
 	"fetchingLocation": "Đang lấy vị trí của bạn...",
-	"locationError": "Không thể lấy vị trí"
+	"locationError": "Không thể lấy vị trí",
+	"darkMode": "Chế độ tối",
+	"lightMode": "Chế độ sáng"
 }

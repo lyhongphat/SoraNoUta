@@ -18,11 +18,26 @@ interface WeatherData {
 	};
 }
 
-export function LocationDisplay() {
+interface LocationDisplayProps {
+	isDark?: boolean;
+}
+
+export function LocationDisplay({ isDark = false }: LocationDisplayProps) {
 	const { t } = useTranslation();
 	const [data, setData] = useState<WeatherData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+
+	const cardBg = isDark ? "bg-gray-800/90" : "bg-white/90";
+	const cardText = isDark ? "text-white" : "text-gray-900";
+	const cardBorder = isDark ? "border-gray-700" : "border-gray-300";
+	const headerBorder = isDark ? "border-blue-500" : "border-blue-400";
+	const coordBg = isDark
+		? "bg-blue-900/30 border-blue-700"
+		: "bg-blue-100/50 border-blue-300";
+	const weatherCardBg = isDark ? "bg-gray-700/50" : "bg-gray-100/50";
+	const weatherCardBorder = isDark ? "border-gray-600" : "border-gray-300";
+	const labelText = isDark ? "text-gray-400" : "text-gray-500";
 
 	useEffect(() => {
 		const fetchLocation = async () => {
@@ -50,36 +65,37 @@ export function LocationDisplay() {
 
 	if (loading) {
 		return (
-			<div className="bg-white/95 rounded-2xl p-8 shadow-2xl max-w-2xl w-full text-gray-900 flex flex-col items-center justify-center min-h-80 gap-6">
-				<Loader className="w-12 h-12 text-primary animate-spin" />
-				<p className="text-lg text-gray-600">{t("fetchingLocation")}</p>
+			<div className={`${cardBg} rounded-2xl p-8 shadow-2xl max-w-2xl w-full ${cardText} flex flex-col items-center justify-center min-h-80 gap-6 border ${cardBorder}`}>
+				<Loader className={`w-12 h-12 ${isDark ? "text-blue-400" : "text-blue-600"} animate-spin`} />
+				<p className="text-lg">{t("fetchingLocation")}</p>
 			</div>
 		);
 	}
 
 	if (error || !data) {
 		return (
-			<div className="bg-white/95 rounded-2xl p-8 shadow-2xl max-w-2xl w-full flex flex-col items-center justify-center min-h-80 gap-4 text-red-500">
+			<div className={`${cardBg} rounded-2xl p-8 shadow-2xl max-w-2xl w-full flex flex-col items-center justify-center min-h-80 gap-4 ${isDark ? "text-red-400" : "text-red-500"} border ${cardBorder}`}>
 				<AlertCircle className="w-12 h-12" />
 				<p className="text-lg">{t("locationError")}</p>
-				{error && <small className="text-gray-500">{error}</small>}
+				{error && <small className={isDark ? "text-gray-400" : "text-gray-500"}>{error}</small>}
 			</div>
 		);
 	}
 
 	const { location, weather } = data;
 	const windDirection = Math.round(weather.winddirection);
+	const iconColor = isDark ? "text-blue-400" : "text-blue-600";
 
 	return (
-		<div className="bg-white/95 rounded-2xl p-8 shadow-2xl max-w-2xl w-full text-gray-900">
+		<div className={`${cardBg} rounded-2xl p-8 shadow-2xl max-w-2xl w-full ${cardText} border ${cardBorder}`}>
 			{/* Header */}
-			<div className="flex items-start gap-4 mb-8 pb-6 border-b-2 border-primary">
-				<MapPin className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+			<div className={`flex items-start gap-4 mb-8 pb-6 border-b-2 ${headerBorder}`}>
+				<MapPin className={`w-8 h-8 ${iconColor} flex-shrink-0 mt-1`} />
 				<div>
-					<h2 className="text-2xl font-bold text-primary m-0 mb-2">
+					<h2 className={`text-2xl font-bold ${iconColor} m-0 mb-2`}>
 						{t("currentLocation")}
 					</h2>
-					<p className="text-lg text-gray-600 m-0">
+					<p className={`text-lg ${isDark ? "text-gray-300" : "text-gray-600"} m-0`}>
 						{location.name}, {location.country}
 					</p>
 				</div>
@@ -88,15 +104,15 @@ export function LocationDisplay() {
 			{/* Content */}
 			<div className="flex flex-col gap-6">
 				{/* Coordinates Card */}
-				<div className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl border-l-4 border-primary">
-					<p className="text-xs font-bold uppercase text-primary mb-3 tracking-wider">
+				<div className={`p-6 ${coordBg} rounded-xl border-l-4 border-blue-500`}>
+					<p className={`text-xs font-bold uppercase ${isDark ? "text-blue-300" : "text-blue-600"} mb-3 tracking-wider`}>
 						Coordinates
 					</p>
-					<div className="text-base text-gray-900 font-mono mb-3 break-all">
+					<div className={`text-base ${isDark ? "text-gray-200" : "text-gray-900"} font-mono mb-3 break-all`}>
 						📍 {location.latitude.toFixed(4)}° N,{" "}
 						{location.longitude.toFixed(4)}° E
 					</div>
-					<p className="text-xs text-gray-400 m-0">
+					<p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"} m-0`}>
 						{new Date(weather.time).toLocaleString()}
 					</p>
 				</div>
@@ -104,36 +120,36 @@ export function LocationDisplay() {
 				{/* Weather Grid */}
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 					{/* Temperature Card */}
-					<div className="p-6 bg-white border-2 border-gray-200 rounded-xl flex flex-col items-center gap-2 hover:border-primary hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary">
-						<p className="text-3xl font-bold text-gray-900">
+					<div className={`p-6 ${weatherCardBg} border-2 ${weatherCardBorder} rounded-xl flex flex-col items-center gap-2 hover:shadow-lg transition-all duration-300`}>
+						<p className={`text-3xl font-bold ${isDark ? "text-blue-300" : "text-blue-600"}`}>
 							{Math.round(weather.temperature)}°C
 						</p>
-						<p className="text-xs uppercase font-bold text-gray-500 text-center tracking-widest">
+						<p className={`text-xs uppercase font-bold ${labelText} text-center tracking-widest`}>
 							Temperature
 						</p>
 					</div>
 
 					{/* Wind Speed Card */}
-					<div className="p-6 bg-white border-2 border-gray-200 rounded-xl flex flex-col items-center gap-2 hover:border-emerald-400 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-emerald-500/5 to-green-500/5 border-emerald-400">
-						<Wind className="w-6 h-6 text-emerald-500" />
-						<p className="text-3xl font-bold text-gray-900">
+					<div className={`p-6 ${weatherCardBg} border-2 ${weatherCardBorder} rounded-xl flex flex-col items-center gap-2 hover:shadow-lg transition-all duration-300`}>
+						<Wind className={`w-6 h-6 ${isDark ? "text-emerald-400" : "text-emerald-600"}`} />
+						<p className={`text-3xl font-bold ${isDark ? "text-emerald-300" : "text-emerald-600"}`}>
 							{weather.windspeed}
 						</p>
-						<p className="text-xs uppercase font-bold text-gray-500 text-center tracking-widest">
+						<p className={`text-xs uppercase font-bold ${labelText} text-center tracking-widest`}>
 							Wind (km/h)
 						</p>
-						<small className="text-xs text-gray-400">
+						<small className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
 							Dir: {windDirection}°
 						</small>
 					</div>
 
 					{/* Weather Code Card */}
-					<div className="p-6 bg-white border-2 border-gray-200 rounded-xl flex flex-col items-center gap-2 hover:border-orange-400 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-orange-500/5 to-amber-500/5 border-orange-400">
-						<Droplets className="w-6 h-6 text-orange-500" />
-						<p className="text-3xl font-bold text-gray-900">
+					<div className={`p-6 ${weatherCardBg} border-2 ${weatherCardBorder} rounded-xl flex flex-col items-center gap-2 hover:shadow-lg transition-all duration-300`}>
+						<Droplets className={`w-6 h-6 ${isDark ? "text-orange-400" : "text-orange-600"}`} />
+						<p className={`text-3xl font-bold ${isDark ? "text-orange-300" : "text-orange-600"}`}>
 							{weather.weathercode}
 						</p>
-						<p className="text-xs uppercase font-bold text-gray-500 text-center tracking-widest">
+						<p className={`text-xs uppercase font-bold ${labelText} text-center tracking-widest`}>
 							Code
 						</p>
 					</div>
