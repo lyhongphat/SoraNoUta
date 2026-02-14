@@ -8,5 +8,16 @@
 	"fetchingLocation": "現在地を取得中...",
 	"locationError": "現在地の取得に失敗しました",
 	"darkMode": "ダークモード",
-	"lightMode": "ライトモード"
+	"lightMode": "ライトモード",
+	"addressInfo": "住所情報",
+	"ward": "町村",
+	"district": "区",
+	"province": "道道米",
+	"coordinates": "位置情報",
+	"warning": "警告",
+	"close": "閉じる",
+	"geolocationNotSupported": "ブラウザはジオロケーションをサポートしていません",
+	"locationFetchError": "アドレスを取得できません",
+	"warningMessage": "位置情報はブラウザによって不正確な場合があります",
+	"retry": "再試行"
 }

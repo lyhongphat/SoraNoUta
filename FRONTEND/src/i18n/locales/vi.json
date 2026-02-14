@@ -8,5 +8,16 @@
 	"fetchingLocation": "Đang lấy vị trí của bạn...",
 	"locationError": "Không thể lấy vị trí",
 	"darkMode": "Chế độ tối",
-	"lightMode": "Chế độ sáng"
+	"lightMode": "Chế độ sáng",
+	"addressInfo": "Thông tin địa chỉ",
+	"ward": "Xã/Phường",
+	"district": "Huyện/Quận",
+	"province": "Tỉnh/Thành phố",
+	"coordinates": "Tọa độ",
+	"warning": "Cảnh báo",
+	"close": "Đóng",
+	"geolocationNotSupported": "Trình duyệt không hỗ trợ định vị",
+	"locationFetchError": "Không thể lấy địa chỉ",
+	"warningMessage": "Vị trí có thể không chính xác tùy thuộc trình duyệt",
+	"retry": "Thử lại"
 }

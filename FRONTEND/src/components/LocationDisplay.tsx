@@ -1,159 +1,199 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MapPin, Wind, Droplets, Loader, AlertCircle } from "lucide-react";
+import { Loader, AlertCircle, RefreshCw } from "lucide-react";
 
-interface WeatherData {
-	location: {
-		name: string;
-		country: string;
-		latitude: number;
-		longitude: number;
-	};
-	weather: {
-		temperature: number;
-		windspeed: number;
-		winddirection: number;
-		weathercode: number;
-		time: string;
+export interface AddressData {
+	display_name: string;
+	address?: {
+		neighbourhood?: string;
+		village?: string;
+		hamlet?: string;
+		suburb?: string;
+		district?: string;
+		county?: string;
+		city?: string;
+		province?: string;
+		state?: string;
+		postcode?: string;
+		country?: string;
 	};
 }
 
 interface LocationDisplayProps {
 	isDark?: boolean;
+	onAddressUpdate?: (address: AddressData | null) => void;
+	onError?: (error: string | null) => void;
 }
 
-export function LocationDisplay({ isDark = false }: LocationDisplayProps) {
+export function LocationDisplay({
+	isDark = false,
+	onAddressUpdate,
+	onError,
+}: LocationDisplayProps) {
 	const { t } = useTranslation();
-	const [data, setData] = useState<WeatherData | null>(null);
+	const [address, setAddress] = useState<AddressData | null>(null);
+	const [coordinates, setCoordinates] = useState<{
+		latitude: number;
+		longitude: number;
+	} | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	const cardBg = isDark ? "bg-gray-800/90" : "bg-white/90";
 	const cardText = isDark ? "text-white" : "text-gray-900";
 	const cardBorder = isDark ? "border-gray-700" : "border-gray-300";
-	const headerBorder = isDark ? "border-blue-500" : "border-blue-400";
 	const coordBg = isDark
 		? "bg-blue-900/30 border-blue-700"
 		: "bg-blue-100/50 border-blue-300";
-	const weatherCardBg = isDark ? "bg-gray-700/50" : "bg-gray-100/50";
-	const weatherCardBorder = isDark ? "border-gray-600" : "border-gray-300";
-	const labelText = isDark ? "text-gray-400" : "text-gray-500";
+
+	const handleGetLocation = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+
+			if (!navigator.geolocation) {
+				throw new Error(t("geolocationNotSupported"));
+			}
+
+			navigator.geolocation.getCurrentPosition(
+				async (position) => {
+					const { latitude, longitude } = position.coords;
+					setCoordinates({ latitude, longitude });
+					await fetchAddress(latitude, longitude);
+					setLoading(false);
+				},
+				(err) => {
+					setError(err.message);
+					setLoading(false);
+				},
+				{
+					enableHighAccuracy: true,
+					timeout: 10000,
+					maximumAge: 0,
+				},
+			);
+		} catch (err) {
+			console.error("Error:", err);
+			const errorMsg = err instanceof Error ? err.message : "Unknown error";
+			setError(errorMsg);
+			setLoading(false);
+		}
+	};
 
 	useEffect(() => {
-		const fetchLocation = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				const response = await fetch("http://localhost:8000/weather");
-				if (!response.ok) {
-					throw new Error("Failed to fetch location data");
-				}
-				const jsonData = await response.json();
-				setData(jsonData);
-			} catch (err) {
-				console.error("Error fetching location:", err);
-				const errorMsg = err instanceof Error ? err.message : "Unknown error";
-				setError(errorMsg);
-				setData(null);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchLocation();
+		handleGetLocation();
 	}, []);
+
+	useEffect(() => {
+		onAddressUpdate?.(address);
+	}, [address, onAddressUpdate]);
+
+	useEffect(() => {
+		onError?.(error);
+	}, [error, onError]);
+
+	const fetchAddress = async (lat: number, lng: number) => {
+		try {
+			const response = await fetch(
+				`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
+				{
+					headers: {
+						"User-Agent": "SoraNoUta/1.0 (Address Lookup)",
+						"Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
+						Referer: "http://localhost:5173/",
+						Origin: "http://localhost:5173",
+					},
+				},
+			);
+			if (!response.ok) {
+				throw new Error("Failed to fetch address");
+			}
+			const addressData: AddressData = await response.json();
+			setAddress(addressData);
+		} catch (err) {
+			console.error("Error fetching address:", err);
+			setError(t("locationFetchError"));
+		}
+	};
 
 	if (loading) {
 		return (
-			<div className={`${cardBg} rounded-2xl p-8 shadow-2xl max-w-2xl w-full ${cardText} flex flex-col items-center justify-center min-h-80 gap-6 border ${cardBorder}`}>
-				<Loader className={`w-12 h-12 ${isDark ? "text-blue-400" : "text-blue-600"} animate-spin`} />
-				<p className="text-lg">{t("fetchingLocation")}</p>
+			<div
+				className={`${cardBg} rounded-lg p-4 shadow-lg ${cardText} flex flex-col items-center justify-center gap-3 border ${cardBorder}`}
+			>
+				<Loader
+					className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-blue-600"} animate-spin`}
+				/>
+				<p className="text-sm">{t("fetchingLocation")}</p>
 			</div>
 		);
 	}
 
-	if (error || !data) {
+	if (error) {
 		return (
-			<div className={`${cardBg} rounded-2xl p-8 shadow-2xl max-w-2xl w-full flex flex-col items-center justify-center min-h-80 gap-4 ${isDark ? "text-red-400" : "text-red-500"} border ${cardBorder}`}>
-				<AlertCircle className="w-12 h-12" />
-				<p className="text-lg">{t("locationError")}</p>
-				{error && <small className={isDark ? "text-gray-400" : "text-gray-500"}>{error}</small>}
+			<div className="space-y-3">
+				<div
+					className={`${cardBg} rounded-lg p-4 shadow-lg flex flex-col items-center justify-center gap-3 ${isDark ? "text-red-400" : "text-red-500"} border ${cardBorder}`}
+				>
+					<AlertCircle className="w-5 h-5" />
+					<p className="text-sm">{error}</p>
+					<button
+						onClick={handleGetLocation}
+						className={`flex items-center gap-2 px-3 py-1 rounded text-xs font-medium transition-all ${
+							isDark
+								? "bg-red-900/30 hover:bg-red-800/50 text-red-300"
+								: "bg-red-100/50 hover:bg-red-200/50 text-red-600"
+						}`}
+					>
+						<RefreshCw size={14} />
+						{t("retry")}
+					</button>
+				</div>
+
+				{/* Warning persists even in error state if we have past coordinates */}
+				{coordinates && (
+					<div
+						className={`p-3 rounded-lg border-l-4 ${
+							isDark
+								? "border-yellow-600 bg-yellow-900/20 text-yellow-200"
+								: "border-yellow-500 bg-yellow-50 text-yellow-700"
+						} text-xs`}
+					>
+						⚠️ {t("warning")}: {t("warningMessage")}
+					</div>
+				)}
 			</div>
 		);
 	}
 
-	const { location, weather } = data;
-	const windDirection = Math.round(weather.winddirection);
-	const iconColor = isDark ? "text-blue-400" : "text-blue-600";
+	if (!coordinates) return null;
 
 	return (
-		<div className={`${cardBg} rounded-2xl p-8 shadow-2xl max-w-2xl w-full ${cardText} border ${cardBorder}`}>
-			{/* Header */}
-			<div className={`flex items-start gap-4 mb-8 pb-6 border-b-2 ${headerBorder}`}>
-				<MapPin className={`w-8 h-8 ${iconColor} flex-shrink-0 mt-1`} />
-				<div>
-					<h2 className={`text-2xl font-bold ${iconColor} m-0 mb-2`}>
-						{t("currentLocation")}
-					</h2>
-					<p className={`text-lg ${isDark ? "text-gray-300" : "text-gray-600"} m-0`}>
-						{location.name}, {location.country}
-					</p>
+		<div className="space-y-3">
+			{/* Coordinates Card */}
+			<div className={`p-4 ${coordBg} rounded-lg border-l-4 border-blue-500`}>
+				<p
+					className={`text-xs font-bold uppercase ${isDark ? "text-blue-300" : "text-blue-600"} mb-2 tracking-wider`}
+				>
+					{t("coordinates")}
+				</p>
+				<div
+					className={`text-sm ${isDark ? "text-gray-200" : "text-gray-900"} font-mono break-all`}
+				>
+					📍 {coordinates.latitude.toFixed(4)}°,{" "}
+					{coordinates.longitude.toFixed(4)}°
 				</div>
 			</div>
 
-			{/* Content */}
-			<div className="flex flex-col gap-6">
-				{/* Coordinates Card */}
-				<div className={`p-6 ${coordBg} rounded-xl border-l-4 border-blue-500`}>
-					<p className={`text-xs font-bold uppercase ${isDark ? "text-blue-300" : "text-blue-600"} mb-3 tracking-wider`}>
-						Coordinates
-					</p>
-					<div className={`text-base ${isDark ? "text-gray-200" : "text-gray-900"} font-mono mb-3 break-all`}>
-						📍 {location.latitude.toFixed(4)}° N,{" "}
-						{location.longitude.toFixed(4)}° E
-					</div>
-					<p className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"} m-0`}>
-						{new Date(weather.time).toLocaleString()}
-					</p>
-				</div>
-
-				{/* Weather Grid */}
-				<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-					{/* Temperature Card */}
-					<div className={`p-6 ${weatherCardBg} border-2 ${weatherCardBorder} rounded-xl flex flex-col items-center gap-2 hover:shadow-lg transition-all duration-300`}>
-						<p className={`text-3xl font-bold ${isDark ? "text-blue-300" : "text-blue-600"}`}>
-							{Math.round(weather.temperature)}°C
-						</p>
-						<p className={`text-xs uppercase font-bold ${labelText} text-center tracking-widest`}>
-							Temperature
-						</p>
-					</div>
-
-					{/* Wind Speed Card */}
-					<div className={`p-6 ${weatherCardBg} border-2 ${weatherCardBorder} rounded-xl flex flex-col items-center gap-2 hover:shadow-lg transition-all duration-300`}>
-						<Wind className={`w-6 h-6 ${isDark ? "text-emerald-400" : "text-emerald-600"}`} />
-						<p className={`text-3xl font-bold ${isDark ? "text-emerald-300" : "text-emerald-600"}`}>
-							{weather.windspeed}
-						</p>
-						<p className={`text-xs uppercase font-bold ${labelText} text-center tracking-widest`}>
-							Wind (km/h)
-						</p>
-						<small className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-							Dir: {windDirection}°
-						</small>
-					</div>
-
-					{/* Weather Code Card */}
-					<div className={`p-6 ${weatherCardBg} border-2 ${weatherCardBorder} rounded-xl flex flex-col items-center gap-2 hover:shadow-lg transition-all duration-300`}>
-						<Droplets className={`w-6 h-6 ${isDark ? "text-orange-400" : "text-orange-600"}`} />
-						<p className={`text-3xl font-bold ${isDark ? "text-orange-300" : "text-orange-600"}`}>
-							{weather.weathercode}
-						</p>
-						<p className={`text-xs uppercase font-bold ${labelText} text-center tracking-widest`}>
-							Code
-						</p>
-					</div>
-				</div>
+			{/* Warning */}
+			<div
+				className={`p-3 rounded-lg border-l-4 ${
+					isDark
+						? "border-yellow-600 bg-yellow-900/20 text-yellow-200"
+						: "border-yellow-500 bg-yellow-50 text-yellow-700"
+				} text-xs`}
+			>
+				⚠️ {t("warning")}: {t("warningMessage")}
 			</div>
 		</div>
 	);
