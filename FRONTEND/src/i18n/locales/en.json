@@ -8,5 +8,16 @@
 	"fetchingLocation": "Fetching your location...",
 	"locationError": "Unable to fetch location",
 	"darkMode": "Dark Mode",
-	"lightMode": "Light Mode"
+	"lightMode": "Light Mode",
+	"addressInfo": "Address Details",
+	"ward": "Ward/Village",
+	"district": "District",
+	"province": "Province/City",
+	"coordinates": "Coordinates",
+	"warning": "Warning",
+	"close": "Close",
+	"geolocationNotSupported": "Browser doesn't support geolocation",
+	"locationFetchError": "Cannot get address",
+	"warningMessage": "Location may be inaccurate depending on browser",
+	"retry": "Retry"
 }
